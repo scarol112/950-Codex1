@@ -1,0 +1,13 @@
+[project]
+name = "950-codex1"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+default-groups = ["dev"]
+
+[dependency-groups]
+dev = ["pytest>=8.4.2"]
