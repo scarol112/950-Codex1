@@ -187,3 +187,27 @@ def test_thick_border_disabled(tmp_path: Path) -> None:
     assert result.returncode == 0
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_transpose_output(tmp_path: Path) -> None:
+    input_path = tmp_path / "transpose.txt"
+    input_path.write_text("h1|h2|h3\nr1|r2|r3\n", encoding="utf-8")
+
+    result = run_script("-t", "-b", "0", str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "┌────┬────┐",
+            "│ h1 │ r1 │",
+            "├────┼────┤",
+            "│ h2 │ r2 │",
+            "├────┼────┤",
+            "│ h3 │ r3 │",
+            "└────┴────┘",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""

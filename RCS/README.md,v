@@ -1,10 +1,20 @@
-head	1.6;
+head	1.8;
 access;
 symbols;
 locks
-	scarol:1.6; strict;
+	scarol:1.8; strict;
 comment	@# @;
 
+
+1.8
+date	2025.10.20.12.33.19;	author scarol;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2025.10.20.12.02.04;	author scarol;	state Exp;
+branches;
+next	1.6;
 
 1.6
 date	2025.10.20.01.35.39;	author scarol;	state Exp;
@@ -41,9 +51,9 @@ desc
 @@
 
 
-1.6
+1.8
 log
-@minor
+@*** empty log message ***
 @
 text
 @# 950-Codex1
@@ -84,6 +94,12 @@ python3 950-010-table.py -b 5 path/to/data.txt
 python3 950-010-table.py -b x path/to/data.txt
 ```
 
+Pass `-t`/`--transpose` to swap rows and columns before rendering:
+
+```bash
+python3 950-010-table.py -t path/to/data.txt
+```
+
 ## Development
 
 Install dependencies and run tests with [uv](https://github.com/astral-sh/uv):
@@ -94,10 +110,30 @@ uv run python -m pytest
 
 RCS is used for version control at the file level. New and modified files are checked in with `ci -l <file>`, which keeps the working copy locked for further edits.
 
-The helper script `vdiff2.sh` opens `vimdiff` on the two most recent RCS revisions of a file:
+### vdiff2 helper
+
+`vdiff2.sh` wraps `vimdiff` to compare RCS revisions:
 
 ```bash
+# Latest two revisions
 ./vdiff2.sh 950-010-table.py
+
+# A specific revision against its predecessor
+./vdiff2.sh 950-010-table.py 1.6
+
+# Two explicit revisions
+./vdiff2.sh 950-010-table.py 1.6 1.3
+
+# Compare the working tree against the most recent revision
+./vdiff2.sh -w 950-010-table.py
+```
+
+Pass `-w` with an optional revision number to diff that revision against the working file. Without revisions, the script chooses the most recent revision automatically.
+
+Run the helper’s tests alongside the main suite:
+
+```bash
+uv run python -m pytest tests/test_vdiff2.py
 ```
 
 ## Roadmap
@@ -105,7 +141,32 @@ The helper script `vdiff2.sh` opens `vimdiff` on the two most recent RCS revisio
 - (done) Add a `-d` option to configure the input delimiter (default `|`).
 - (done) Support thicker borders after every _n_ rows; column grouping is still pending.
 - (done) Offer an option to use extended graphics characters.
+- (done) Provide a transpose mode for rotating the table output.
+@
+
+
+1.7
+log
+@*** empty log message ***
+@
+text
+@d55 3
+a57 1
+The helper script `vdiff2.sh` opens `vimdiff` on the two most recent RCS revisions of a file:
+d60 1
+d62 17
+d86 1
+a86 1
 - Provide a transpose mode for rotating the table output.
+@
+
+
+1.6
+log
+@minor
+@
+text
+@d39 6
 @
 
 

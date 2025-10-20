@@ -1,10 +1,15 @@
-head	1.6;
+head	1.7;
 access;
 symbols;
 locks
-	scarol:1.6; strict;
+	scarol:1.7; strict;
 comment	@# @;
 
+
+1.7
+date	2025.10.20.12.02.02;	author scarol;	state Exp;
+branches;
+next	1.6;
 
 1.6
 date	2025.10.20.01.26.08;	author scarol;	state Exp;
@@ -42,7 +47,7 @@ desc
 @
 
 
-1.6
+1.7
 log
 @*** empty log message ***
 @
@@ -95,6 +100,10 @@ def parse_rows(
 def normalise_rows(rows: Sequence[List[str]]) -> List[List[str]]:
     max_columns = max(len(row) for row in rows)
     return [row + [""] * (max_columns - len(row)) for row in rows]
+
+
+def transpose_rows(rows: Sequence[Sequence[str]]) -> List[List[str]]:
+    return [list(column) for column in zip(*rows)]
 
 
 def column_widths(rows: Sequence[Sequence[str]]) -> List[int]:
@@ -181,6 +190,12 @@ def build_parser() -> argparse.ArgumentParser:
             "(default: 3)."
         ),
     )
+    parser.add_argument(
+        "-t",
+        "--transpose",
+        action="store_true",
+        help="Transpose the table before rendering, swapping rows with columns.",
+    )
     return parser
 
 
@@ -200,8 +215,11 @@ def main(argv: list[str] | None = None) -> int:
         lines = load_lines(args.input)
         rows = parse_rows(lines, delimiter=args.delimiter)
         normalised_rows = normalise_rows(rows)
+        table_rows = (
+            transpose_rows(normalised_rows) if args.transpose else normalised_rows
+        )
         table = render_table(
-            normalised_rows,
+            table_rows,
             thick_border_interval=args.thick_border_interval,
         )
     except Exception as exc:  # noqa: BLE001
@@ -214,6 +232,20 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+@
+
+
+1.6
+log
+@*** empty log message ***
+@
+text
+@d51 4
+d139 6
+d164 3
+d168 1
+a168 1
+            normalised_rows,
 @
 
 

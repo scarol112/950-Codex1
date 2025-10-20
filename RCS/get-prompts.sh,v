@@ -1,0 +1,32 @@
+head	1.1;
+access;
+symbols;
+locks
+	scarol:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2025.10.20.20.10.38;	author scarol;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@SESSIONFILE=$1
+TODAY=$(date +"%Y-%m-%d")
+grep "$TODAY" "$SESSIONFILE" |
+grep -E '"type":"user_message"'  |
+    grep -Eo '"message":.*'|cut -d: -f2|sed 's/\\//g;s/,"kind.*/\n/' |
+    fold -s
+
+
+@

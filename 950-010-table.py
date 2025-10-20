@@ -48,6 +48,10 @@ def normalise_rows(rows: Sequence[List[str]]) -> List[List[str]]:
     return [row + [""] * (max_columns - len(row)) for row in rows]
 
 
+def transpose_rows(rows: Sequence[Sequence[str]]) -> List[List[str]]:
+    return [list(column) for column in zip(*rows)]
+
+
 def column_widths(rows: Sequence[Sequence[str]]) -> List[int]:
     widths = [0] * len(rows[0])
     for row in rows:
@@ -132,6 +136,12 @@ def build_parser() -> argparse.ArgumentParser:
             "(default: 3)."
         ),
     )
+    parser.add_argument(
+        "-t",
+        "--transpose",
+        action="store_true",
+        help="Transpose the table before rendering, swapping rows with columns.",
+    )
     return parser
 
 
@@ -151,8 +161,11 @@ def main(argv: list[str] | None = None) -> int:
         lines = load_lines(args.input)
         rows = parse_rows(lines, delimiter=args.delimiter)
         normalised_rows = normalise_rows(rows)
+        table_rows = (
+            transpose_rows(normalised_rows) if args.transpose else normalised_rows
+        )
         table = render_table(
-            normalised_rows,
+            table_rows,
             thick_border_interval=args.thick_border_interval,
         )
     except Exception as exc:  # noqa: BLE001
