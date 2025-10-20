@@ -6,14 +6,37 @@ import sys
 from pathlib import Path
 from typing import Iterable, List, Sequence
 
+ALLOWED_DELIMITERS = {" ", "-", "/", "|", ","}
 
-def parse_rows(lines: Iterable[str], *, skip_empty: bool = True) -> List[List[str]]:
+
+def parse_border_interval(value: str) -> int | str:
+    if value.lower() == "x":
+        return "x"
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "thick border interval must be a non-negative integer or 'x'"
+        ) from exc
+    if parsed < 0:
+        raise argparse.ArgumentTypeError(
+            "thick border interval must be a non-negative integer or 'x'"
+        )
+    return parsed
+
+
+def parse_rows(
+    lines: Iterable[str],
+    *,
+    skip_empty: bool = True,
+    delimiter: str = "|",
+) -> List[List[str]]:
     rows: List[List[str]] = []
     for raw_line in lines:
         line = raw_line.rstrip("\n")
         if skip_empty and not line.strip():
             continue
-        cells = [cell.strip() for cell in line.split("|")]
+        cells = [cell.strip() for cell in line.split(delimiter)]
         rows.append(cells)
     if not rows:
         raise ValueError("no rows found in the input")
@@ -33,26 +56,81 @@ def column_widths(rows: Sequence[Sequence[str]]) -> List[int]:
     return widths
 
 
-def render_table(rows: Sequence[Sequence[str]]) -> str:
+def render_table(
+    rows: Sequence[Sequence[str]], *, thick_border_interval: int | str = 3
+) -> str:
     widths = column_widths(rows)
-    horizontal_border = "+" + "+".join("-" * (width + 2) for width in widths) + "+"
-    lines = [horizontal_border]
-    for row in rows:
+
+    if thick_border_interval == "x":
+        lines = []
+        for row in rows:
+            padded_cells = [
+                cell.ljust(width) for cell, width in zip(row, widths)
+            ]
+            lines.append(" ".join(padded_cells).rstrip())
+        return "\n".join(lines)
+
+    assert isinstance(thick_border_interval, int)
+
+    def border(style: str) -> str:
+        border_parts = {
+            "top": ("┌", "┬", "┐", "─"),
+            "middle_thin": ("├", "┼", "┤", "─"),
+            "middle_thick": ("╞", "╪", "╡", "═"),
+            "bottom_thin": ("└", "┴", "┘", "─"),
+            "bottom_thick": ("╘", "╧", "╛", "═"),
+        }
+        left, mid, right, fill = border_parts[style]
+        segments = [fill * (width + 2) for width in widths]
+        return left + mid.join(segments) + right
+
+    lines = [border("top")]
+    total_rows = len(rows)
+    for row_index, row in enumerate(rows, start=1):
         padded_cells = [
             f" {cell}{' ' * (width - len(cell))} " for cell, width in zip(row, widths)
         ]
-        lines.append("|" + "|".join(padded_cells) + "|")
-        lines.append(horizontal_border)
+        lines.append("│" + "│".join(padded_cells) + "│")
+        use_thick_border = (
+            thick_border_interval > 0 and row_index % thick_border_interval == 0
+        )
+        is_last = row_index == total_rows
+        if is_last:
+            style = "bottom_thick" if use_thick_border else "bottom_thin"
+        else:
+            style = "middle_thick" if use_thick_border else "middle_thin"
+        lines.append(border(style))
     return "\n".join(lines)
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Render a pipe-delimited text file as an ASCII table."
+        description="Render a delimited text file as a Unicode box-drawing table."
     )
     parser.add_argument(
         "input",
         help="Path to the input file. Use '-' to read from standard input.",
+    )
+    parser.add_argument(
+        "-d",
+        "--delimiter",
+        default="|",
+        choices=sorted(ALLOWED_DELIMITERS),
+        help=(
+            "Single-character column delimiter to parse the input. "
+            "Allowed values: space, -, /, |, ,"
+        ),
+    )
+    parser.add_argument(
+        "-b",
+        "--thick-border-interval",
+        type=parse_border_interval,
+        default=3,
+        help=(
+            "Insert a thicker separator every N data rows. "
+            "Use 0 to disable thicker borders or 'x' to remove borders entirely "
+            "(default: 3)."
+        ),
     )
     return parser
 
@@ -71,9 +149,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         lines = load_lines(args.input)
-        rows = parse_rows(lines)
+        rows = parse_rows(lines, delimiter=args.delimiter)
         normalised_rows = normalise_rows(rows)
-        table = render_table(normalised_rows)
+        table = render_table(
+            normalised_rows,
+            thick_border_interval=args.thick_border_interval,
+        )
     except Exception as exc:  # noqa: BLE001
         parser.print_usage(file=sys.stderr)
         print(f"error: {exc}", file=sys.stderr)
