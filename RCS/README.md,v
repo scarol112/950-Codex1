@@ -1,4 +1,27 @@
-# 950-Codex1
+head	1.1;
+access;
+symbols;
+locks
+	scarol:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2025.10.20.00.11.37;	author scarol;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# 950-Codex1
 
 ASCII table rendering utilities and supporting scripts.
 
@@ -44,3 +67,4 @@ The helper script `vdiff2.sh` opens `vimdiff` on the two most recent RCS revisio
 - Support drawing thicker borders after every _n_ rows or columns.
 - Offer an option to use extended graphics characters.
 - Provide a transpose mode for rotating the table output.
+@
