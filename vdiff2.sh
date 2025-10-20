@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# $Source: /srv/950-Codex1/RCS/vdiff2.sh,v $
+# $Date: 2025/10/20 20:15:20 $
+# $Revision: 1.3 $
+# $State: Exp $
+
 set -euo pipefail
 
 usage() {

@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# $Source: /srv/950-Codex1/RCS/950-010-table.py,v $
+# $Date: 2025/10/20 20:15:20 $
+# $Revision: 1.8 $
+# $State: Exp $
+
 from __future__ import annotations
 
 import argparse

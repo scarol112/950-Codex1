@@ -1,10 +1,15 @@
-head	1.1;
+head	1.2;
 access;
 symbols;
 locks
-	scarol:1.1; strict;
+	scarol:1.2; strict;
 comment	@# @;
 
+
+1.2
+date	2025.10.20.20.15.20;	author scarol;	state Exp;
+branches;
+next	1.1;
 
 1.1
 date	2025.10.20.20.10.38;	author scarol;	state Exp;
@@ -16,12 +21,17 @@ desc
 @@
 
 
-1.1
+1.2
 log
-@Initial revision
+@added RCS headers
 @
 text
-@SESSIONFILE=$1
+@# $Source$
+# $Date$
+# $Revision$
+# $State$
+
+SESSIONFILE=$1
 TODAY=$(date +"%Y-%m-%d")
 grep "$TODAY" "$SESSIONFILE" |
 grep -E '"type":"user_message"'  |
@@ -29,4 +39,13 @@ grep -E '"type":"user_message"'  |
     fold -s
 
 
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 5
 @
