@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # $Source: /srv/950-Codex1/RCS/950-010-table.py,v $
-# $Date: 2025/10/20 20:15:20 $
-# $Revision: 1.8 $
+# $Date: 2025/10/21 18:02:21 $
+# $Revision: 1.9 $
 # $State: Exp $
 
 from __future__ import annotations
@@ -12,6 +12,24 @@ from pathlib import Path
 from typing import Iterable, List, Sequence
 
 ALLOWED_DELIMITERS = {" ", "-", "/", "|", ","}
+STYLE_DEFINITIONS = {
+    "t": {
+        "vertical": "|",
+        "top": ("+", "+", "+", "-"),
+        "middle_thin": ("+", "+", "+", "-"),
+        "middle_thick": ("+", "+", "+", "="),
+        "bottom_thin": ("+", "+", "+", "-"),
+        "bottom_thick": ("+", "+", "+", "="),
+    },
+    "g": {
+        "vertical": "│",
+        "top": ("┌", "┬", "┐", "─"),
+        "middle_thin": ("├", "┼", "┤", "─"),
+        "middle_thick": ("╞", "╪", "╡", "═"),
+        "bottom_thin": ("└", "┴", "┘", "─"),
+        "bottom_thick": ("╘", "╧", "╛", "═"),
+    },
+}
 
 
 def parse_border_interval(value: str) -> int | str:
@@ -28,6 +46,13 @@ def parse_border_interval(value: str) -> int | str:
             "thick border interval must be a non-negative integer or 'x'"
         )
     return parsed
+
+
+def parse_style(value: str) -> str:
+    key = value.lower()
+    if key not in STYLE_DEFINITIONS:
+        raise argparse.ArgumentTypeError("style must be 't' (text) or 'g' (graphics)")
+    return key
 
 
 def parse_rows(
@@ -66,7 +91,10 @@ def column_widths(rows: Sequence[Sequence[str]]) -> List[int]:
 
 
 def render_table(
-    rows: Sequence[Sequence[str]], *, thick_border_interval: int | str = 3
+    rows: Sequence[Sequence[str]],
+    *,
+    thick_border_interval: int | str = 3,
+    style: str = "t",
 ) -> str:
     widths = column_widths(rows)
 
@@ -81,15 +109,11 @@ def render_table(
 
     assert isinstance(thick_border_interval, int)
 
+    style_config = STYLE_DEFINITIONS[style]
+    vertical = style_config["vertical"]
+
     def border(style: str) -> str:
-        border_parts = {
-            "top": ("┌", "┬", "┐", "─"),
-            "middle_thin": ("├", "┼", "┤", "─"),
-            "middle_thick": ("╞", "╪", "╡", "═"),
-            "bottom_thin": ("└", "┴", "┘", "─"),
-            "bottom_thick": ("╘", "╧", "╛", "═"),
-        }
-        left, mid, right, fill = border_parts[style]
+        left, mid, right, fill = style_config[style]
         segments = [fill * (width + 2) for width in widths]
         return left + mid.join(segments) + right
 
@@ -99,7 +123,7 @@ def render_table(
         padded_cells = [
             f" {cell}{' ' * (width - len(cell))} " for cell, width in zip(row, widths)
         ]
-        lines.append("│" + "│".join(padded_cells) + "│")
+        lines.append(vertical + vertical.join(padded_cells) + vertical)
         use_thick_border = (
             thick_border_interval > 0 and row_index % thick_border_interval == 0
         )
@@ -114,7 +138,7 @@ def render_table(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Render a delimited text file as a Unicode box-drawing table."
+        description="Render a delimited text file as an ASCII or Unicode table."
     )
     parser.add_argument(
         "input",
@@ -147,6 +171,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Transpose the table before rendering, swapping rows with columns.",
     )
+    parser.add_argument(
+        "-s",
+        "--style",
+        type=parse_style,
+        default="t",
+        choices=sorted(STYLE_DEFINITIONS),
+        help="Table style: 't' for text borders (default) or 'g' for Unicode graphics.",
+    )
     return parser
 
 
@@ -172,6 +204,7 @@ def main(argv: list[str] | None = None) -> int:
         table = render_table(
             table_rows,
             thick_border_interval=args.thick_border_interval,
+            style=args.style,
         )
     except Exception as exc:  # noqa: BLE001
         parser.print_usage(file=sys.stderr)

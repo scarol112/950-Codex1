@@ -1,10 +1,10 @@
 # 950-Codex1
 
-Unicode table rendering utilities and supporting scripts.
+Table rendering utilities and supporting scripts.
 
 ## Overview
 
-The main entry point is `950-010-table.py`, a command-line tool that turns delimited text into an aligned table using Unicode box-drawing characters. The project ships with automated tests plus a helper script, `vdiff2.sh`, for comparing recent RCS revisions.
+The main entry point is `950-010-table.py`, a command-line tool that turns delimited text into an aligned table. Text borders are used by default and you can opt into Unicode box-drawing characters. The project ships with automated tests plus a helper script, `vdiff2.sh`, for comparing recent RCS revisions.
 
 ## Usage
 
@@ -20,7 +20,7 @@ Read from standard input instead:
 echo "left|right" | python3 950-010-table.py -
 ```
 
-The script emits formatted Unicode output to stdout and reports validation errors to stderr (e.g., missing files or empty input).
+The script emits formatted table output to stdout and reports validation errors to stderr (e.g., missing files or empty input).
 
 Use `-d`/`--delimiter` to choose a different single-character separator. The default is `|`, and the allowed values are space (`" "`), `-`, `/`, `|`, and `,`:
 
@@ -40,6 +40,16 @@ Pass `-t`/`--transpose` to swap rows and columns before rendering:
 
 ```bash
 python3 950-010-table.py -t path/to/data.txt
+```
+
+Select a border style with `-s`/`--style` (`t` for ASCII text, `g` for Unicode box drawing):
+
+```bash
+# Explicitly select ASCII (default)
+python3 950-010-table.py -s t path/to/data.txt
+
+# Unicode borders
+python3 950-010-table.py -s g path/to/data.txt
 ```
 
 ## Development
