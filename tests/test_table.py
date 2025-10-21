@@ -233,3 +233,51 @@ def test_unicode_style_output(tmp_path: Path) -> None:
     assert result.returncode == 0
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_remove_ascii_table(tmp_path: Path) -> None:
+    table_text = "\n".join(
+        [
+            "+---+-------+---+",
+            "| a | bbbbb | c |",
+            "+---+-------+---+",
+            "| 1 | 2     | 3 |",
+            "+---+-------+---+",
+            "",
+        ]
+    )
+    table_path = tmp_path / "table.txt"
+    table_path.write_text(table_text, encoding="utf-8")
+
+    result = run_script("-r", str(table_path))
+
+    expected_output = "a|bbbbb|c\n1|2|3\n"
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_remove_unicode_table_with_custom_delimiter(tmp_path: Path) -> None:
+    table_text = "\n".join(
+        [
+            "┌───┬────┐",
+            "│ h1 │ r1 │",
+            "├───┼────┤",
+            "│ h2 │ r2 │",
+            "├───┼────┤",
+            "│ h3 │ r3 │",
+            "└───┴────┘",
+            "",
+        ]
+    )
+    table_path = tmp_path / "unicode_table.txt"
+    table_path.write_text(table_text, encoding="utf-8")
+
+    result = run_script("-r", "-d", ",", str(table_path))
+
+    expected_output = "h1,r1\nh2,r2\nh3,r3\n"
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""

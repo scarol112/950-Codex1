@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Source: /srv/950-Codex1/RCS/get-prompts.sh,v $
 # $Date: 2025/10/20 20:15:20 $
 # $Revision: 1.2 $

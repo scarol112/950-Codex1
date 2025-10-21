@@ -52,6 +52,13 @@ python3 950-010-table.py -s t path/to/data.txt
 python3 950-010-table.py -s g path/to/data.txt
 ```
 
+Strip borders and paddings from an existing table to recover delimited data with `-r`/`--remove`. The tool auto-detects whether the input uses ASCII or Unicode borders, but you can still pass `-s` to override it:
+
+```bash
+# Convert a rendered table back into comma-delimited rows
+python3 950-010-table.py -r -s g -d , formatted-table.txt
+```
+
 ## Development
 
 Install dependencies and run tests with [uv](https://github.com/astral-sh/uv):

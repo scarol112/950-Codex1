@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # $Source: /srv/950-Codex1/RCS/950-010-table.py,v $
-# $Date: 2025/10/21 18:02:21 $
-# $Revision: 1.9 $
+# $Date: 2025/10/21 18:36:32 $
+# $Revision: 1.11 $
 # $State: Exp $
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Iterable, List, Sequence
 
 ALLOWED_DELIMITERS = {" ", "-", "/", "|", ","}
-STYLE_DEFINITIONS = {
+STYLE_DEFINITIONS: dict[str, dict[str, object]] = {
     "t": {
         "vertical": "|",
         "top": ("+", "+", "+", "-"),
@@ -55,6 +55,16 @@ def parse_style(value: str) -> str:
     return key
 
 
+def detect_style(lines: Sequence[str]) -> str:
+    for style_key, config in STYLE_DEFINITIONS.items():
+        vertical = config["vertical"]
+        for raw_line in lines:
+            line = raw_line.rstrip("\n")
+            if line and line.startswith(vertical) and line.endswith(vertical):
+                return style_key
+    return "t"
+
+
 def parse_rows(
     lines: Iterable[str],
     *,
@@ -88,6 +98,28 @@ def column_widths(rows: Sequence[Sequence[str]]) -> List[int]:
         for idx, cell in enumerate(row):
             widths[idx] = max(widths[idx], len(cell))
     return widths
+
+
+def extract_table_rows(
+    lines: Sequence[str],
+    *,
+    style: str | None = None,
+) -> List[List[str]]:
+    style_to_use = style or detect_style(lines)
+    vertical = STYLE_DEFINITIONS[style_to_use]["vertical"]
+    rows: List[List[str]] = []
+    for raw_line in lines:
+        line = raw_line.rstrip("\n")
+        if not line:
+            continue
+        if not (line.startswith(vertical) and line.endswith(vertical)):
+            continue
+        inner = line[1:-1]
+        cells = [cell.strip() for cell in inner.split(vertical)]
+        rows.append(cells)
+    if not rows:
+        raise ValueError("no table rows found in the input")
+    return rows
 
 
 def render_table(
@@ -175,9 +207,15 @@ def build_parser() -> argparse.ArgumentParser:
         "-s",
         "--style",
         type=parse_style,
-        default="t",
+        default=None,
         choices=sorted(STYLE_DEFINITIONS),
         help="Table style: 't' for text borders (default) or 'g' for Unicode graphics.",
+    )
+    parser.add_argument(
+        "-r",
+        "--remove",
+        action="store_true",
+        help="Remove borders/padding from a rendered table and output delimited data.",
     )
     return parser
 
@@ -195,16 +233,21 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
-        lines = load_lines(args.input)
+        lines_iterable = load_lines(args.input)
+        lines = list(lines_iterable)
+        if args.remove:
+            table_rows = extract_table_rows(lines, style=args.style)
+            output_lines = [args.delimiter.join(row) for row in table_rows]
+            print("\n".join(output_lines))
+            return 0
         rows = parse_rows(lines, delimiter=args.delimiter)
         normalised_rows = normalise_rows(rows)
-        table_rows = (
-            transpose_rows(normalised_rows) if args.transpose else normalised_rows
-        )
+        table_rows = transpose_rows(normalised_rows) if args.transpose else normalised_rows
+        style_for_render = args.style or "t"
         table = render_table(
             table_rows,
             thick_border_interval=args.thick_border_interval,
-            style=args.style,
+            style=style_for_render,
         )
     except Exception as exc:  # noqa: BLE001
         parser.print_usage(file=sys.stderr)
