@@ -1,0 +1,50 @@
+[01;34m.[0m
+├── 950-010-table.py
+├── Project-structure.md
+├── [01;34mRCS[0m
+│   ├── 950-010-table.py,v
+│   ├── Project-structure.md,v
+│   ├── README.md,v
+│   ├── get-prompts.sh,v
+│   ├── [01;34mscripts[0m
+│   │   ├── get-prompts.sh,v
+│   │   └── [01;32mvdiff2.sh,v[0m
+│   ├── [01;34msrc[0m
+│   │   └── [01;34mtable_tool[0m
+│   │       ├── __init__.py,v
+│   │       ├── __main__.py,v
+│   │       └── cli.py,v
+│   ├── test.txt,v
+│   └── test1.txt,v
+├── README.md
+├── main.py
+├── pyproject.toml
+├── [01;34mscripts[0m
+│   ├── get-prompts.sh
+│   └── [01;32mvdiff2.sh[0m
+├── session-log.md
+├── [01;34msrc[0m
+│   └── [01;34mtable_tool[0m
+│       ├── __init__.py
+│       ├── __main__.py
+│       ├── [01;34m__pycache__[0m
+│       │   ├── __init__.cpython-312.pyc
+│       │   ├── __main__.cpython-312.pyc
+│       │   └── cli.cpython-312.pyc
+│       └── cli.py
+├── [01;34mtests[0m
+│   ├── [01;34mRCS[0m
+│   │   └── test_table.py,v
+│   ├── [01;34m__pycache__[0m
+│   │   ├── test_table.cpython-312-pytest-8.4.2.pyc
+│   │   ├── test_table.cpython-312.pyc
+│   │   └── test_vdiff2.cpython-312-pytest-8.4.2.pyc
+│   ├── test_table.py
+│   └── test_vdiff2.py
+├── uv.lock
+├── woods.txt
+├── x
+├── xt1.txt
+└── xt2.txt
+
+12 directories, 36 files

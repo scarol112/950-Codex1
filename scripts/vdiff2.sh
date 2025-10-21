@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# $Source: /srv/950-Codex1/RCS/vdiff2.sh,v $
-# $Date: 2025/10/20 20:15:20 $
-# $Revision: 1.3 $
+# $Source: /srv/950-Codex1/scripts/vdiff2.sh,v $
+# $Date: 2025/10/21 19:16:51 $
+# $Revision: 1.1 $
 # $State: Exp $
 
 set -euo pipefail

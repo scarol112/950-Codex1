@@ -1,0 +1,29 @@
+head	1.1;
+access;
+symbols;
+locks
+	scarol:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2025.10.21.19.17.47;	author scarol;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@"""Table rendering package."""
+
+from .cli import main  # re-export for convenience
+
+__all__ = ["main"]
+@

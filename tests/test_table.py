@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -7,18 +8,26 @@ from pathlib import Path
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT_PATH = PROJECT_ROOT / "950-010-table.py"
+SRC_PATH = PROJECT_ROOT / "src"
 
 
 def run_script(*args: str, input_data: str | None = None) -> subprocess.CompletedProcess[str]:
     """Run the table script with the provided arguments and captured IO."""
-    cmd = [sys.executable, str(SCRIPT_PATH), *args]
+    cmd = [sys.executable, "-m", "table_tool", *args]
+    env = os.environ.copy()
+    existing_path = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = (
+        str(SRC_PATH)
+        if not existing_path
+        else f"{SRC_PATH}{os.pathsep}{existing_path}"
+    )
     return subprocess.run(
         cmd,
         input=input_data,
         text=True,
         capture_output=True,
         check=False,
+        env=env,
     )
 
 

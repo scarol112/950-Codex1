@@ -8,7 +8,7 @@ from textwrap import dedent
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = PROJECT_ROOT / "vdiff2.sh"
+SCRIPT = PROJECT_ROOT / "scripts" / "vdiff2.sh"
 
 
 def collect_revisions(file_path: Path) -> list[str]:
