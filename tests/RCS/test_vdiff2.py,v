@@ -1,4 +1,27 @@
-from __future__ import annotations
+head	1.1;
+access;
+symbols;
+locks
+	scarol:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2025.10.29.18.32.38;	author scarol;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@from __future__ import annotations
 
 import os
 import subprocess
@@ -20,7 +43,7 @@ def collect_revisions(file_path: Path) -> list[str]:
     return [line.split()[1] for line in output.splitlines() if line.startswith("revision ")]
 
 
-@pytest.fixture()
+@@pytest.fixture()
 def stub_env(tmp_path: Path) -> tuple[dict[str, str], Path]:
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
@@ -35,7 +58,7 @@ def stub_env(tmp_path: Path) -> tuple[dict[str, str], Path]:
             set -euo pipefail
             log="${VDIFF2_LOG:?}"
             printf 'ARGS:%s\n' "$*" >>"$log"
-            for file in "$@"; do
+            for file in "$@@"; do
                 printf 'FILE:%s\n' "$file" >>"$log"
                 if [ -f "$file" ]; then
                     printf 'CONTENT:%s\n' "$(cat "$file")" >>"$log"
@@ -233,3 +256,4 @@ def test_error_when_revisions_with_two_files(stub_env: tuple[dict[str, str], Pat
 
     assert result.returncode != 0
     assert "specify exactly one file when using -r" in result.stderr
+@

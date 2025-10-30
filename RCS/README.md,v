@@ -1,10 +1,15 @@
-head	1.12;
+head	1.13;
 access;
 symbols;
 locks
-	scarol:1.12; strict;
+	scarol:1.13; strict;
 comment	@# @;
 
+
+1.13
+date	2025.10.29.18.32.45;	author scarol;	state Exp;
+branches;
+next	1.12;
 
 1.12
 date	2025.10.21.19.17.19;	author scarol;	state Exp;
@@ -71,7 +76,7 @@ desc
 @@
 
 
-1.12
+1.13
 log
 @*** empty log message ***
 @
@@ -145,6 +150,24 @@ Install dependencies and run tests with [uv](https://github.com/astral-sh/uv):
 uv run python -m pytest
 ```
 
+RCS is used for version control at the file level. New and modified files are checked in with `ci -l <file>`, which keeps the working copy locked for further edits. Script-specific documentation (including `vdiff2.sh` and `get-prompts.sh`) lives in `scripts/README.md`.
+
+## Roadmap
+
+- (done) Add a `-d` option to configure the input delimiter (default `|`).
+- (done) Support thicker borders after every _n_ rows; column grouping is still pending.
+- (done) Offer an option to use extended graphics characters.
+- (done) Provide a transpose mode for rotating the table output.
+@
+
+
+1.12
+log
+@*** empty log message ***
+@
+text
+@d70 1
+a70 27
 RCS is used for version control at the file level. New and modified files are checked in with `ci -l <file>`, which keeps the working copy locked for further edits.
 
 ### vdiff2 helper
@@ -172,13 +195,6 @@ Run the helper’s tests alongside the main suite:
 ```bash
 uv run python -m pytest tests/test_vdiff2.py
 ```
-
-## Roadmap
-
-- (done) Add a `-d` option to configure the input delimiter (default `|`).
-- (done) Support thicker borders after every _n_ rows; column grouping is still pending.
-- (done) Offer an option to use extended graphics characters.
-- (done) Provide a transpose mode for rotating the table output.
 @
 
 

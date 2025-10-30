@@ -67,33 +67,7 @@ Install dependencies and run tests with [uv](https://github.com/astral-sh/uv):
 uv run python -m pytest
 ```
 
-RCS is used for version control at the file level. New and modified files are checked in with `ci -l <file>`, which keeps the working copy locked for further edits.
-
-### vdiff2 helper
-
-`scripts/vdiff2.sh` wraps `vimdiff` to compare RCS revisions:
-
-```bash
-# Latest two revisions
-./scripts/vdiff2.sh 950-010-table.py
-
-# A specific revision against its predecessor
-./scripts/vdiff2.sh 950-010-table.py 1.6
-
-# Two explicit revisions
-./scripts/vdiff2.sh 950-010-table.py 1.6 1.3
-
-# Compare the working tree against the most recent revision
-./scripts/vdiff2.sh -w 950-010-table.py
-```
-
-Pass `-w` with an optional revision number to diff that revision against the working file. Without revisions, the script chooses the most recent revision automatically.
-
-Run the helper’s tests alongside the main suite:
-
-```bash
-uv run python -m pytest tests/test_vdiff2.py
-```
+RCS is used for version control at the file level. New and modified files are checked in with `ci -l <file>`, which keeps the working copy locked for further edits. Script-specific documentation (including `vdiff2.sh` and `get-prompts.sh`) lives in `scripts/README.md`.
 
 ## Roadmap
 
