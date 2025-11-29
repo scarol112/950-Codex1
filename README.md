@@ -42,7 +42,7 @@ Pass `-t`/`--transpose` to swap rows and columns before rendering:
 PYTHONPATH=src python3 -m table_tool -t path/to/data.txt
 ```
 
-Select a border style with `-s`/`--style` (`t` for ASCII text, `g` for Unicode box drawing):
+Select a border style with `-s`/`--style` (`t` for ASCII text, `g` for Unicode box drawing, 'm' for minimal decoration):
 
 ```bash
 # Explicitly select ASCII (default)

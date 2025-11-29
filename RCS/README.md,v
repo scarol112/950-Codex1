@@ -1,10 +1,15 @@
-head	1.13;
+head	1.14;
 access;
 symbols;
 locks
-	scarol:1.13; strict;
+	scarol:1.14; strict;
 comment	@# @;
 
+
+1.14
+date	2025.11.29.03.58.19;	author scarol;	state Exp;
+branches;
+next	1.13;
 
 1.13
 date	2025.10.29.18.32.45;	author scarol;	state Exp;
@@ -76,9 +81,9 @@ desc
 @@
 
 
-1.13
+1.14
 log
-@*** empty log message ***
+@added -sm
 @
 text
 @# 950-Codex1
@@ -125,7 +130,7 @@ Pass `-t`/`--transpose` to swap rows and columns before rendering:
 PYTHONPATH=src python3 -m table_tool -t path/to/data.txt
 ```
 
-Select a border style with `-s`/`--style` (`t` for ASCII text, `g` for Unicode box drawing):
+Select a border style with `-s`/`--style` (`t` for ASCII text, `g` for Unicode box drawing, 'm' for minimal decoration):
 
 ```bash
 # Explicitly select ASCII (default)
@@ -158,6 +163,17 @@ RCS is used for version control at the file level. New and modified files are ch
 - (done) Support thicker borders after every _n_ rows; column grouping is still pending.
 - (done) Offer an option to use extended graphics characters.
 - (done) Provide a transpose mode for rotating the table output.
+@
+
+
+1.13
+log
+@*** empty log message ***
+@
+text
+@d45 1
+a45 1
+Select a border style with `-s`/`--style` (`t` for ASCII text, `g` for Unicode box drawing):
 @
 
 

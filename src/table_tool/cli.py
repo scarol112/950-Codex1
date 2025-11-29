@@ -7,6 +7,14 @@ from typing import Iterable, List, Sequence
 
 ALLOWED_DELIMITERS = {" ", "-", "/", "|", ","}
 STYLE_DEFINITIONS: dict[str, dict[str, object]] = {
+    "m": {
+        "vertical": "|",
+        "top": ("+", "+", "+", "-"),
+        "middle_thin": (" ", "+", "+", " "),
+        "middle_thick": ("+", "+", "+", "-"),
+        "bottom_thin": ("+", "+", "+", "-"),
+        "bottom_thick": ("+", "+", "+", "-"),
+    },
     "t": {
         "vertical": "|",
         "top": ("+", "+", "+", "-"),
@@ -45,7 +53,7 @@ def parse_border_interval(value: str) -> int | str:
 def parse_style(value: str) -> str:
     key = value.lower()
     if key not in STYLE_DEFINITIONS:
-        raise argparse.ArgumentTypeError("style must be 't' (text) or 'g' (graphics)")
+        raise argparse.ArgumentTypeError("style must be 'm' (minimal), 't' (text) or 'g' (graphics)")
     return key
 
 
@@ -145,6 +153,7 @@ def render_table(
 
     lines = [border("top")]
     total_rows = len(rows)
+    # -------------------------------------------------
     for row_index, row in enumerate(rows, start=1):
         padded_cells = [
             f" {cell}{' ' * (width - len(cell))} " for cell, width in zip(row, widths)
@@ -158,7 +167,10 @@ def render_table(
             style_name = "bottom_thick" if use_thick_border else "bottom_thin"
         else:
             style_name = "middle_thick" if use_thick_border else "middle_thin"
-        lines.append(border(style_name))
+
+        if border(style_name)[0] != " ":
+            lines.append(border(style_name))
+
     return "\n".join(lines)
 
 
@@ -203,7 +215,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=parse_style,
         default=None,
         choices=sorted(STYLE_DEFINITIONS),
-        help="Table style: 't' for text borders (default) or 'g' for Unicode graphics.",
+        help="Table style: 'm' for minimal decoration, 't' for text borders (default) or 'g' for Unicode graphics.",
     )
     parser.add_argument(
         "-r",
