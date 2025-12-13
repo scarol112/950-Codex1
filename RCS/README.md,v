@@ -1,10 +1,15 @@
-head	1.14;
+head	1.15;
 access;
 symbols;
 locks
-	scarol:1.14; strict;
+	scarol:1.15; strict;
 comment	@# @;
 
+
+1.15
+date	2025.12.13.19.34.32;	author scarol;	state Exp;
+branches;
+next	1.14;
 
 1.14
 date	2025.11.29.03.58.19;	author scarol;	state Exp;
@@ -81,9 +86,9 @@ desc
 @@
 
 
-1.14
+1.15
 log
-@added -sm
+@Restore Unicode docs, tests, and lock
 @
 text
 @# 950-Codex1
@@ -92,7 +97,7 @@ Table rendering utilities and supporting scripts.
 
 ## Overview
 
-The main entry point is the `table_tool` Python package (`python -m table_tool`), which turns delimited text into an aligned table. Text borders are used by default and you can opt into Unicode box-drawing characters. The project ships with automated tests plus helper scripts under `scripts/` (for example, `vdiff2.sh` for comparing recent RCS revisions).
+The main entry point is the `table_tool` Python package (`python -m table_tool`), which turns delimited text into an aligned table. Text borders are used by default and you can opt into Unicode box-drawing characters. Column widths respect Unicode display widths, so wide glyphs stay aligned. The project ships with automated tests plus helper scripts under `scripts/` (for example, `vdiff2.sh` for comparing recent RCS revisions).
 
 ## Usage
 
@@ -163,6 +168,17 @@ RCS is used for version control at the file level. New and modified files are ch
 - (done) Support thicker borders after every _n_ rows; column grouping is still pending.
 - (done) Offer an option to use extended graphics characters.
 - (done) Provide a transpose mode for rotating the table output.
+@
+
+
+1.14
+log
+@added -sm
+@
+text
+@d7 1
+a7 1
+The main entry point is the `table_tool` Python package (`python -m table_tool`), which turns delimited text into an aligned table. Text borders are used by default and you can opt into Unicode box-drawing characters. The project ships with automated tests plus helper scripts under `scripts/` (for example, `vdiff2.sh` for comparing recent RCS revisions).
 @
 
 

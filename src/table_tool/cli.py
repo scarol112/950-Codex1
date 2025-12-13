@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from typing import Iterable, List, Sequence
 
+from wcwidth import wcswidth
+
 ALLOWED_DELIMITERS = {" ", "-", "/", "|", ","}
 STYLE_DEFINITIONS: dict[str, dict[str, object]] = {
     "m": {
@@ -94,11 +96,17 @@ def transpose_rows(rows: Sequence[Sequence[str]]) -> List[List[str]]:
     return [list(column) for column in zip(*rows)]
 
 
+def display_width(text: str) -> int:
+    """Return the printable width of a string, treating wide characters appropriately."""
+    width = wcswidth(text)
+    return width if width >= 0 else len(text)
+
+
 def column_widths(rows: Sequence[Sequence[str]]) -> List[int]:
     widths = [0] * len(rows[0])
     for row in rows:
         for idx, cell in enumerate(row):
-            widths[idx] = max(widths[idx], len(cell))
+            widths[idx] = max(widths[idx], display_width(cell))
     return widths
 
 
@@ -136,7 +144,8 @@ def render_table(
         lines = []
         for row in rows:
             padded_cells = [
-                cell.ljust(width) for cell, width in zip(row, widths)
+                f"{cell}{' ' * (width - display_width(cell))}"
+                for cell, width in zip(row, widths)
             ]
             lines.append(" ".join(padded_cells).rstrip())
         return "\n".join(lines)
@@ -156,7 +165,8 @@ def render_table(
     # -------------------------------------------------
     for row_index, row in enumerate(rows, start=1):
         padded_cells = [
-            f" {cell}{' ' * (width - len(cell))} " for cell, width in zip(row, widths)
+            f" {cell}{' ' * (width - display_width(cell))} "
+            for cell, width in zip(row, widths)
         ]
         lines.append(vertical + vertical.join(padded_cells) + vertical)
         use_thick_border = (

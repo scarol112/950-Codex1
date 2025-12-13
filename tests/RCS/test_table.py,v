@@ -1,10 +1,15 @@
-head	1.1;
+head	1.2;
 access;
 symbols;
 locks
-	scarol:1.1; strict;
+	scarol:1.2; strict;
 comment	@# @;
 
+
+1.2
+date	2025.12.13.19.34.32;	author scarol;	state Exp;
+branches;
+next	1.1;
 
 1.1
 date	2025.10.19.22.45.15;	author scarol;	state Exp;
@@ -16,13 +21,14 @@ desc
 @@
 
 
-1.1
+1.2
 log
-@Initial revision
+@Restore Unicode docs, tests, and lock
 @
 text
 @from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -30,18 +36,26 @@ from pathlib import Path
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SCRIPT_PATH = PROJECT_ROOT / "950-010-table.py"
+SRC_PATH = PROJECT_ROOT / "src"
 
 
 def run_script(*args: str, input_data: str | None = None) -> subprocess.CompletedProcess[str]:
     """Run the table script with the provided arguments and captured IO."""
-    cmd = [sys.executable, str(SCRIPT_PATH), *args]
+    cmd = [sys.executable, "-m", "table_tool", *args]
+    env = os.environ.copy()
+    existing_path = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = (
+        str(SRC_PATH)
+        if not existing_path
+        else f"{SRC_PATH}{os.pathsep}{existing_path}"
+    )
     return subprocess.run(
         cmd,
         input=input_data,
         text=True,
         capture_output=True,
         check=False,
+        env=env,
     )
 
 
@@ -84,6 +98,26 @@ def test_table_from_stdin() -> None:
     assert result.stderr == ""
 
 
+def test_no_borders(tmp_path: Path) -> None:
+    input_path = tmp_path / "plain.txt"
+    input_path.write_text("c1|c2\n1|1\n2|2\n", encoding="utf-8")
+
+    result = run_script("-b", "x", str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "c1 c2",
+            "1  1",
+            "2  2",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_missing_file_reports_error(tmp_path: Path) -> None:
     missing_path = tmp_path / "nope.txt"
 
@@ -103,4 +137,225 @@ def test_empty_input_emits_error(tmp_path: Path) -> None:
     assert result.returncode == 1
     assert "no rows found" in result.stderr
 
+
+def test_custom_delimiter_comma(tmp_path: Path) -> None:
+    input_path = tmp_path / "comma.txt"
+    input_path.write_text("name,age\nAlice,30\n", encoding="utf-8")
+
+    result = run_script("-d", ",", str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "+-------+-----+",
+            "| name  | age |",
+            "+-------+-----+",
+            "| Alice | 30  |",
+            "+-------+-----+",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_invalid_delimiter_is_rejected(tmp_path: Path) -> None:
+    input_path = tmp_path / "data.txt"
+    input_path.write_text("a;b\n", encoding="utf-8")
+
+    result = run_script("-d", ";", str(input_path))
+
+    assert result.returncode == 2
+    assert "invalid choice" in result.stderr
+
+
+def test_thick_border_default_interval(tmp_path: Path) -> None:
+    input_path = tmp_path / "thick.txt"
+    input_path.write_text("c1|c2\n1|1\n2|2\n3|3\n4|4\n", encoding="utf-8")
+
+    result = run_script(str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "+----+----+",
+            "| c1 | c2 |",
+            "+----+----+",
+            "| 1  | 1  |",
+            "+----+----+",
+            "| 2  | 2  |",
+            "+====+====+",
+            "| 3  | 3  |",
+            "+----+----+",
+            "| 4  | 4  |",
+            "+----+----+",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_thick_border_disabled(tmp_path: Path) -> None:
+    input_path = tmp_path / "thin.txt"
+    input_path.write_text("c1|c2\n1|1\n2|2\n3|3\n4|4\n", encoding="utf-8")
+
+    result = run_script("-b", "0", str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "+----+----+",
+            "| c1 | c2 |",
+            "+----+----+",
+            "| 1  | 1  |",
+            "+----+----+",
+            "| 2  | 2  |",
+            "+----+----+",
+            "| 3  | 3  |",
+            "+----+----+",
+            "| 4  | 4  |",
+            "+----+----+",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_transpose_output(tmp_path: Path) -> None:
+    input_path = tmp_path / "transpose.txt"
+    input_path.write_text("h1|h2|h3\nr1|r2|r3\n", encoding="utf-8")
+
+    result = run_script("-t", "-b", "0", str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "+----+----+",
+            "| h1 | r1 |",
+            "+----+----+",
+            "| h2 | r2 |",
+            "+----+----+",
+            "| h3 | r3 |",
+            "+----+----+",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_unicode_style_output(tmp_path: Path) -> None:
+    input_path = tmp_path / "unicode.txt"
+    input_path.write_text("x|yy\n1|22\n", encoding="utf-8")
+
+    result = run_script("-s", "g", str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "┌───┬────┐",
+            "│ x │ yy │",
+            "├───┼────┤",
+            "│ 1 │ 22 │",
+            "└───┴────┘",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_unicode_width_handling(tmp_path: Path) -> None:
+    input_path = tmp_path / "wide.txt"
+    input_path.write_text("名|value\n長い名前|x\n", encoding="utf-8")
+
+    result = run_script(str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "+----------+-------+",
+            "| 名       | value |",
+            "+----------+-------+",
+            "| 長い名前 | x     |",
+            "+----------+-------+",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_remove_ascii_table(tmp_path: Path) -> None:
+    table_text = "\n".join(
+        [
+            "+---+-------+---+",
+            "| a | bbbbb | c |",
+            "+---+-------+---+",
+            "| 1 | 2     | 3 |",
+            "+---+-------+---+",
+            "",
+        ]
+    )
+    table_path = tmp_path / "table.txt"
+    table_path.write_text(table_text, encoding="utf-8")
+
+    result = run_script("-r", str(table_path))
+
+    expected_output = "a|bbbbb|c\n1|2|3\n"
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_remove_unicode_table_with_custom_delimiter(tmp_path: Path) -> None:
+    table_text = "\n".join(
+        [
+            "┌───┬────┐",
+            "│ h1 │ r1 │",
+            "├───┼────┤",
+            "│ h2 │ r2 │",
+            "├───┼────┤",
+            "│ h3 │ r3 │",
+            "└───┴────┘",
+            "",
+        ]
+    )
+    table_path = tmp_path / "unicode_table.txt"
+    table_path.write_text(table_text, encoding="utf-8")
+
+    result = run_script("-r", "-d", ",", str(table_path))
+
+    expected_output = "h1,r1\nh2,r2\nh3,r3\n"
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+d11 1
+a11 1
+SCRIPT_PATH = PROJECT_ROOT / "950-010-table.py"
+d16 8
+a23 1
+    cmd = [sys.executable, str(SCRIPT_PATH), *args]
+d30 1
+d73 20
+d112 203
 @

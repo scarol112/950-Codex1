@@ -244,6 +244,28 @@ def test_unicode_style_output(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_unicode_width_handling(tmp_path: Path) -> None:
+    input_path = tmp_path / "wide.txt"
+    input_path.write_text("名|value\n長い名前|x\n", encoding="utf-8")
+
+    result = run_script(str(input_path))
+
+    expected_output = "\n".join(
+        [
+            "+----------+-------+",
+            "| 名       | value |",
+            "+----------+-------+",
+            "| 長い名前 | x     |",
+            "+----------+-------+",
+            "",
+        ]
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_remove_ascii_table(tmp_path: Path) -> None:
     table_text = "\n".join(
         [

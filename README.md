@@ -4,7 +4,7 @@ Table rendering utilities and supporting scripts.
 
 ## Overview
 
-The main entry point is the `table_tool` Python package (`python -m table_tool`), which turns delimited text into an aligned table. Text borders are used by default and you can opt into Unicode box-drawing characters. The project ships with automated tests plus helper scripts under `scripts/` (for example, `vdiff2.sh` for comparing recent RCS revisions).
+The main entry point is the `table_tool` Python package (`python -m table_tool`), which turns delimited text into an aligned table. Text borders are used by default and you can opt into Unicode box-drawing characters. Column widths respect Unicode display widths, so wide glyphs stay aligned. The project ships with automated tests plus helper scripts under `scripts/` (for example, `vdiff2.sh` for comparing recent RCS revisions).
 
 ## Usage
 
